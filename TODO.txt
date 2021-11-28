@@ -1,0 +1,2 @@
+GameWorld classes:
+	-Delete all painters from common lib (they must be only in client)
