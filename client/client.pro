@@ -3,7 +3,6 @@ DEFINES += KOLOBOK_CLIENT \
     NET_VERSION=1 \
     NET_SUBVERSION=0 # \
 
-CONFIG += sanitizer sanitize_address
 CONFIG += debug
 
 

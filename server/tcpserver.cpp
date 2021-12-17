@@ -58,15 +58,16 @@ void TcpServer::incomingConnection(qintptr socketDescriptor) {
     }
 }
 
-//TcpServer::~TcpServer() {
-//    Shared & sharedData = static_cast<ServerTools *>(parent())->getShared();
-//    sharedData.playerById.writeLock();
-//    PlayersMap::iterator playerIt =
-//            sharedData.playerById.get().begin();
-//    for(; playerIt != sharedData.playerById.get().end(); ++playerIt) {
-//        PlayersMap::iterator nextPlayerIt = playerIt + 1;
-//        delete playerIt.value(); //is smth wrong?
-//        //sharedData.playerById.get().remove(playerIt.key()); ~PlayerThread????
-//        playerIt = nextPlayerIt;
+void TcpServer::sendIP(QString ipStr) {
+    qDebug() << "tcp: " << ipStr;
+    emit newIP(ipStr);
+}
+
+//void TcpServer::deletePlayer() {
+//    PlayersMap::iterator it = sharedData.playerById.get().begin();
+//    for (;it != sharedData.playerById.get().end() && it.value()->isFinished(); ++it);
+//    if (it != sharedData.playerById.get().end()) {
+//        delete it.value();
+//        sharedData.playerById.get().remove(it.key());
 //    }
 //}

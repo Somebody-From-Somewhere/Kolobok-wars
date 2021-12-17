@@ -19,23 +19,13 @@ AIBot::AIBot(Shared & sharedData, MovingObjectProperties props) {
    id = props.getId();
    patrolPoints = UtilityAlgorithms::selectPolygon(sharedData, consts::patrolEdgeMinLength);
    currentPatrolIndex = -1;
-   qDebug() << "aiBot constructor finished, patrol positions: " << patrolPoints;
-   qsrand(time(NULL));
-
-}
-
-AIBot::~AIBot()
-{
-    patrolPoints.clear();
-    patrolPath.clear();
-    firedBullets.clear();
 }
 
 
 bool AIBot::isVisible(QPointF playerPos, Shared & sharedData) {
     QVector2D move = QVector2D(playerPos.x() - position.x(), playerPos.y() - position.y());
     quint16 distance = move.length();
-    qreal moveTime = distance / consts::velocity;
+    qfloat16 moveTime = distance / consts::velocity;
     QPointF unitIncrement = (move / moveTime).toPointF();
 
     // split the vector into unit moves; if any of the moves is irrelevant ==> dot is not visible
@@ -71,41 +61,26 @@ void AIBot::escape(MovingObjectProperties playerProps, Shared &sharedData)
 
 void AIBot::pursuit(MovingObjectProperties playerProps, Shared & sharedData)
 {
-    /*QVector2D intent = UtilityAlgorithms::getMoveIntent(
+    QVector2D intent = UtilityAlgorithms::getMoveIntent(
                 position,
                 playerProps.getPosition(),
                 sharedData,
                 consts::stride);
 
-    this->intent = intent;*/
+    this->intent = intent;
 }
 
 void AIBot::patrol(Shared &sharedData)
 {
-    double prob = rand() % consts::changePathProb;
-    if(prob >= consts::changePathProb - 1) {
-        patrolPoints = UtilityAlgorithms::selectPolygon(sharedData, consts::patrolEdgeMinLength);
-    }
-    bool calcPathFlag = false;
-    if(currentPatrolIndex == -1 ||
-            UtilityAlgorithms::arePointsClose(position, patrolPoints.at(currentPatrolIndex), consts::stride)) {
-        qDebug() << "patrol: switching target!";
+    if(currentPatrolIndex == -1 || position == patrolPoints.at(currentPatrolIndex)) {
         currentPatrolIndex += 1;
         currentPatrolIndex %= consts::patrolPointsCount;
-        calcPathFlag = true;
     }
-
-    qDebug() << "Patrol: target = " << patrolPoints.at(currentPatrolIndex) << " position = " << position;
-
-    QLinkedList<QPointF> * path = new QLinkedList<QPointF>;
-
     QVector2D intent = UtilityAlgorithms::getMoveIntent(
                 position,
                 patrolPoints.at(currentPatrolIndex),
                 sharedData,
-                consts::stride,
-                path);
-
+                consts::stride);
 
     this->intent = intent;
 }
@@ -125,44 +100,26 @@ void AIBot::switchState(Shared & sharedData) {
             nearestPlayerProps = player->getMovProperties();
         }
 
-    //qDebug() << "[switchState] nearestPlayerPos: " << nearestPlayerProps.getPosition() << " botPos: " << position;
-
     switch (state) {
         case Attack:
-            if(hp <= consts::hpEscape) {
-                qDebug() << "state: Attack --> Escape";
+            if(hp <= consts::hpEscape)
                 state = Escape;
-            }
-
-            if(!isVisible(nearestPlayerProps.getPosition(), sharedData)) {
-                qDebug() << "state: Attack --> Patrol";
-                state = Patrol;
-            }
-
+            // TODO: if no visible enemies ==> patrol
             break;
         case Pursuit:
-            if(isVisible(nearestPlayerProps.getPosition(), sharedData)) {
-                qDebug() << "state: Pursuit --> Attack";
+            if(isVisible(nearestPlayerProps.getPosition(), sharedData))
                 state = Attack;
-            }
             // TODO: player is dead ==> patrol
             break;
         case Patrol:
-            /*if(isVisible(nearestPlayerProps.getPosition(), sharedData) && hp <= consts::hpEscape) {
-                qDebug() << "state: Patrol --> Escape";
+            if(isVisible(nearestPlayerProps.getPosition(), sharedData) && hp <= consts::hpEscape)
                 state = Escape;
-            }
-
-            if(isVisible(nearestPlayerProps.getPosition(), sharedData) && hp > consts::hpEscape) {
-                qDebug() << "state: Patrol --> Attack";
+            if(isVisible(nearestPlayerProps.getPosition(), sharedData) && hp > consts::hpEscape)
                 state = Attack;
-            }
-            break; */
+            break;
         case Escape:
-            if(!isVisible(nearestPlayerProps.getPosition(), sharedData)) {
-                qDebug() << "state: Escape --> Patrol";
+            if(!isVisible(nearestPlayerProps.getPosition(), sharedData))
                 state = Patrol;
-            }
             break;
         default:
             break;
