@@ -13,8 +13,7 @@ DEFINES += KOLOBOK_CLIENT \
     NET_SUBVERSION=0 \
     COMMON_LIBRARY
 
-CONFIG += sanitizer sanitize_address \
-	debug
+CONFIG += debug
 
 HEADERS += \
     Bullet.h \

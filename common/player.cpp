@@ -36,6 +36,9 @@ void Player::paint (
 //  qDebug() << "Repaint Player" << id;
   if (position != pos())
     setPos(pos() + intent.toPointF()*consts::sendTimerInterval / 5 / consts::sceneUpdateInterval);
+  QPen pen(QColor(0, 0, 0));
+  pen.setWidth(2);
+  painter->setPen(pen);
   painter->setRenderHint( QPainter::Antialiasing, true );
   painter->drawEllipse ( QPointF(0,0), scaledPlayerSize(), scaledPlayerSize() );
   painter->drawLine    ( QPointF(0,0), head.toPointF()*scaledPlayerSize() );
